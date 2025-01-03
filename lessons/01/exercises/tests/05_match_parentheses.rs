@@ -15,6 +15,71 @@
 // It rhymes with "Jack" :)
 // You don't even need to implement it fully, just use Vec and perform two operations on it.
 
+fn match_parentheses(s: &str) -> bool {
+    let s: Vec<char> = s
+        .chars()
+        .filter(|x| *x == '(' || *x == ')' || *x == '[' || *x == ']' || *x == '{' || *x == '}')
+        .collect();
+    let mut matching: bool = s.len() % 2 == 0;
+    if !matching {
+        return false;
+    }
+    let mut last: char;
+    let mut opened: Vec<char> = Vec::new();
+    let mut round: i32 = 0;
+    let mut square: i32 = 0;
+    let mut curly: i32 = 0;
+    for c in s {
+        if c == '(' {
+            round += 1;
+            opened.push(c);
+        }
+        if c == '[' {
+            square += 1;
+            opened.push(c);
+        }
+        if c == '{' {
+            curly += 1;
+            opened.push(c);
+        }
+        if c == ')' {
+            if opened.len() == 0 {
+                return false;
+            }
+            last = opened[opened.len() - 1];
+            if round <= 0 || last != '(' {
+                return false;
+            }
+            round -= 1;
+            opened.remove(opened.len() - 1);
+        }
+        if c == ']' {
+            if opened.len() == 0 {
+                return false;
+            }
+            last = opened[opened.len() - 1];
+            if square <= 0 || last != '[' {
+                return false;
+            }
+            square -= 1;
+            opened.remove(opened.len() - 1);
+        }
+        if c == '}' {
+            if opened.len() == 0 {
+                return false;
+            }
+            last = opened[opened.len() - 1];
+            if curly <= 0 || last != '{' {
+                return false;
+            }
+            curly -= 1;
+            opened.remove(opened.len() - 1);
+        }
+    }
+    matching = matching && round == 0 && square == 0 && curly == 0;
+    matching
+}
+
 /// Below you can find a set of unit tests.
 #[cfg(test)]
 mod tests {

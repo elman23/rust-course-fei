@@ -5,6 +5,18 @@
 //
 // The input argument is an array of ten `i32` integers.
 // How does that type look like in Rust?
+fn find_largest(a: &[i32]) -> i32 {
+    if a.len() == 0 {
+        panic!("Empty array: impossible to find the largest element!");
+    }
+    let mut max = a[0];
+    for i in a {
+        if *i > max {
+            max = *i;
+        }
+    }
+    max
+}
 
 /// Below you can find a set of unit tests.
 #[cfg(test)]
@@ -13,28 +25,28 @@ mod tests {
 
     #[test]
     fn find_largest_all_same() {
-        assert_eq!(find_largest([2, 2, 2, 2, 2, 2, 2, 2, 2, 2]), 2);
+        assert_eq!(find_largest(&[2, 2, 2, 2, 2, 2, 2, 2, 2, 2]), 2);
     }
 
     #[test]
     fn find_largest_increasing() {
-        assert_eq!(find_largest([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]), 10);
+        assert_eq!(find_largest(&[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]), 10);
     }
 
     #[test]
     fn find_largest_decreasing() {
-        assert_eq!(find_largest([10, 9, 8, 7, 6, 5, 4, 3, 2, 1]), 10);
+        assert_eq!(find_largest(&[10, 9, 8, 7, 6, 5, 4, 3, 2, 1]), 10);
     }
 
     #[test]
     fn find_largest_random() {
-        assert_eq!(find_largest([17, 10, 18, 3, 7, 8, 7, 19, 20, 8]), 20);
+        assert_eq!(find_largest(&[17, 10, 18, 3, 7, 8, 7, 19, 20, 8]), 20);
     }
 
     #[test]
     fn find_largest_negative() {
         assert_eq!(
-            find_largest([-17, -10, -18, -3, -7, -8, -7, -19, -20, -8]),
+            find_largest(&[-17, -10, -18, -3, -7, -8, -7, -19, -20, -8]),
             -3
         );
     }

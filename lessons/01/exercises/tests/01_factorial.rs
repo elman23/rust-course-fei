@@ -1,6 +1,12 @@
 //! Run this file with `cargo test --test 01_factorial`.
 
 // TODO: Implement a simple factorial function.
+fn factorial(n: i64) -> i64 {
+    if n == 0 || n == 1 {
+        return 1;
+    }
+    n * factorial(n - 1)
+}
 
 /// Below you can find a set of unit tests.
 #[cfg(test)]
