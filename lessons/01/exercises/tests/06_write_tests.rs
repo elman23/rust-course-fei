@@ -37,4 +37,33 @@ fn sanitize(input: &str) -> &str {
 mod tests {
     use super::sanitize;
 
+    #[test]
+    fn not_ending_with_x() {
+        assert_eq!(sanitize("asd"), "asd");
+    }
+
+    #[test]
+    fn not_ending_with_0() {
+        assert_eq!(sanitize("asd"), "asd");
+    }
+
+    #[test]
+    fn not_ending_with_exe() {
+        assert_eq!(sanitize("asxexe"), "asxexe");
+    }
+
+    #[test]
+    fn sanitize_x() {
+        assert_eq!(sanitize("asx"), "as");
+    }
+
+    #[test]
+    fn sanitize_o() {
+        assert_eq!(sanitize("aso"), "as");
+    }
+
+    #[test]
+    fn sanitize_exe() {
+        assert_eq!(sanitize("as.exe"), "as");
+    }
 }
