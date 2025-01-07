@@ -22,35 +22,53 @@
 //   - If the PC is running and its `idle_time` is larger than 1000, it switches to `Sleeping`.
 //   - If the PC is sleeping and its `sleep_time` is larger than 500, it switches to `Off`.
 
+const RUNNING: &str = "Running";
+const SLEEPING: &str = "Sleeping";
+const OFF: &str = "Off";
+
 struct ComputerState {
     // TODO: represent the state of the computer
+    state: String,
+    uptime: u32,
+    idle_time: u32,
+    sleep_time: u32,
 }
 
 impl ComputerState {
     // Returns a computer that is turned off
     fn new_off() -> Self {
-        todo!()
+        ComputerState {
+            state: String::from(OFF),
+            uptime: 0,
+            idle_time: 0,
+            sleep_time: 0,
+        }
     }
 
     // Returns a computer that is turned on
     fn new_on() -> Self {
-        todo!()
+        ComputerState {
+            state: String::from(RUNNING),
+            uptime: 0,
+            idle_time: 0,
+            sleep_time: 0,
+        }
     }
 
     fn is_on(&self) -> bool {
-        todo!()
+        self.state == RUNNING || self.state == SLEEPING
     }
     fn is_sleeping(&self) -> bool {
-        todo!()
+        self.state == SLEEPING
     }
     fn uptime(&self) -> u32 {
-        todo!()
+        self.uptime
     }
     fn idle_time(&self) -> u32 {
-        todo!()
+        self.idle_time
     }
     fn sleep_time(&self) -> u32 {
-        todo!()
+        self.sleep_time
     }
 }
 
@@ -62,7 +80,73 @@ enum Event {
 }
 
 fn pc_transition(mut computer: ComputerState, event: Event) -> ComputerState {
-    todo!()
+    match event {
+        Event::TurnOn => turn_on(computer),
+        Event::TurnOff => turn_off(computer),
+        Event::PassTime(t) => pass_time(computer, t),
+        Event::MoveMouse => move_mouse(computer),
+    }
+}
+
+// When `TurnOn` happens, if the PC is off, it switches to `Running`. Otherwise nothing happens.
+fn turn_on(mut computer: ComputerState) -> ComputerState {
+    if computer.state == OFF {
+        computer.state = String::from(RUNNING);
+    }
+    computer
+}
+
+// When `TurnOff` happens, the PC switches to `Off`.
+fn turn_off(mut computer: ComputerState) -> ComputerState {
+    if computer.state == RUNNING || computer.state == SLEEPING {
+        computer.state = String::from(OFF);
+        computer.uptime = 0;
+        computer.idle_time = 0;
+        computer.sleep_time = 0;
+    }
+    computer
+}
+
+// When `PassTime(time)` happens, and the PC is on, it increments its `uptime` by `time`. Then:
+// - If the PC is running and its `idle_time` is larger than 1000, it switches to `Sleeping`.
+// - If the PC is sleeping and its `sleep_time` is larger than 500, it switches to `Off`.
+fn pass_time(mut computer: ComputerState, time: u32) -> ComputerState {
+    if computer.is_on() {
+        computer.uptime += time;
+    }
+    if computer.state == SLEEPING {
+        computer.sleep_time += time;
+        if computer.sleep_time > 500 {
+            computer = ComputerState::new_off();
+        }
+    }
+    if computer.state == RUNNING {
+        computer.idle_time += time;
+        if computer.idle_time > 1000 {
+            if computer.idle_time - 1000 > 500 {
+                computer = ComputerState::new_off();
+            } else {
+                computer.state = String::from(SLEEPING);
+                computer.sleep_time += computer.idle_time - 1000;
+                computer.idle_time = 0;
+            }
+        }
+    }
+    computer
+}
+
+// When `MoveMouse` happens:
+// - if the PC is sleeping, the PC switches to `Running`.
+// - if the PC is running, it resets its `idle_time` to zero.
+fn move_mouse(mut computer: ComputerState) -> ComputerState {
+    if computer.state == SLEEPING {
+        computer.state = String::from(RUNNING);
+        computer.sleep_time = 0;
+    }
+    if computer.state == RUNNING {
+        computer.idle_time = 0;
+    }
+    computer
 }
 
 /// Below you can find a set of unit tests.

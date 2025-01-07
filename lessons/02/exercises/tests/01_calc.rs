@@ -10,6 +10,28 @@
 // operation should be performed on it.
 // Hint: max(..) and min(..) methods of `i32` might come in handy.
 
+enum Op {
+    Add(i32),
+    Sub(i32),
+    Clamp { low: i32, high: i32 },
+}
+
+fn perform_calculation(x: i32, o: Op) -> i32 {
+    match o {
+        Op::Add(y) => return x + y,
+        Op::Sub(y) => return x - y,
+        Op::Clamp { low: l, high: h } => {
+            if x > h {
+                return h;
+            }
+            if x < l {
+                return l;
+            }
+            return x;
+        }
+    }
+}
+
 /// Below you can find a set of unit tests.
 #[cfg(test)]
 mod tests {
