@@ -25,6 +25,72 @@
 // Hint: Put `#[derive(Debug, Eq, PartialEq)]` on top of `SRL` and `SRLValidationError`,
 // so that asserts in tests work.
 
+mod srl {
+    #[derive(Debug, Eq, PartialEq)]
+    pub enum SRLValidationError {
+        EmptyAddress,
+        EmptyProtocol,
+        InvalidCharacterInProtocol(char),
+        InvalidCharacterInAddress(char),
+    }
+
+    #[derive(Debug, Eq, PartialEq)]
+    pub struct SRL {
+        protocol: Option<String>,
+        address: String,
+    }
+
+    impl SRL {
+        pub fn new(srl: &str) -> Result<Self, SRLValidationError> {
+            if srl.is_empty() {
+                return Err(SRLValidationError::EmptyAddress);
+            }
+            if srl.starts_with("://") {
+                return Err(SRLValidationError::EmptyProtocol);
+            }
+            let parts: Vec<&str> = srl.split("://").collect();
+            if parts.len() > 2 {
+                return Err(SRLValidationError::InvalidCharacterInAddress(':'));
+            }
+            let address = if parts.len() > 1 {
+                parts[1].to_string()
+            } else {
+                parts[0].to_string()
+            };
+            let protocol = if parts.len() > 1 {
+                Some(parts[0].to_string())
+            } else {
+                None
+            };
+            if let Some(p) = protocol.clone() {
+                for c in p.chars() {
+                    if !c.is_ascii_lowercase() {
+                        return Err(SRLValidationError::InvalidCharacterInProtocol(c));
+                    }
+                }
+            }
+            for c in address.chars() {
+                if !c.is_ascii_lowercase() {
+                    return Err(SRLValidationError::InvalidCharacterInAddress(c));
+                }
+            }
+
+            Ok(Self { protocol, address })
+        }
+
+        pub fn get_protocol(&self) -> Option<&str> {
+            match &self.protocol {
+                Some(t) => Some(t),
+                None => None,
+            }
+        }
+
+        pub fn get_address(&self) -> &str {
+            &self.address
+        }
+    }
+}
+
 /// Below you can find a set of unit tests.
 #[cfg(test)]
 mod tests {
@@ -32,7 +98,11 @@ mod tests {
 
     #[test]
     fn empty_address() {
-        assert_eq!(SRL::new(""), Err(SRLValidationError::EmptyAddress));
+        assert_eq!(
+            //SRL::new("".to_ascii_lowercase()),
+            SRL::new(""),
+            Err(SRLValidationError::EmptyAddress)
+        );
     }
 
     #[test]

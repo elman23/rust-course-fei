@@ -1,4 +1,4 @@
-//! Run this file with `cargo test --test 03_state_transition_enum`.
+//! Run this file with `cargo test --test 04_state_transition_enum`.
 
 // The #[derive] attribute enables nicer error messages in tests.
 // It will be explained in later weeks.
@@ -50,6 +50,90 @@ enum Event {
 //
 // Compare this approach with using a struct (which we did on the lesson).
 // Is it easier with an enum or with a struct?
+fn pc_transition(computer: ComputerState, event: Event) -> ComputerState {
+    match event {
+        Event::TurnOn => turn_on(computer),
+        Event::TurnOff => turn_off(computer),
+        Event::PassTime(t) => pass_time(computer, t),
+        Event::MoveMouse => move_mouse(computer),
+    }
+}
+
+// When `TurnOn` happens, if the PC is off, it switches to `Running`. Otherwise nothing happens.
+fn turn_on(computer: ComputerState) -> ComputerState {
+    match computer {
+        ComputerState::Off => ComputerState::Running {
+            uptime: 0,
+            idle_time: 0,
+        },
+        _ => computer,
+    }
+}
+
+// When `TurnOff` happens, the PC switches to `Off`.
+fn turn_off(computer: ComputerState) -> ComputerState {
+    match computer {
+        ComputerState::Off => computer,
+        _ => ComputerState::Off,
+    }
+}
+
+// When `PassTime(time)` happens, and the PC is on, it increments its `uptime` by `time`. Then:
+// - If the PC is running and its `idle_time` is larger than 1000, it switches to `Sleeping`.
+// - If the PC is sleeping and its `sleep_time` is larger than 500, it switches to `Off`.
+fn pass_time(computer: ComputerState, time: u32) -> ComputerState {
+    match computer {
+        ComputerState::Off => computer,
+        ComputerState::Running { uptime, idle_time } => {
+            if idle_time + time > 1000 + 500 {
+                ComputerState::Off
+            } else if idle_time + time > 1000 {
+                ComputerState::Sleeping {
+                    uptime: uptime + time,
+                    sleep_time: idle_time + time - 1000,
+                }
+            } else {
+                ComputerState::Running {
+                    uptime: uptime + time,
+                    idle_time: idle_time + time,
+                }
+            }
+        }
+        ComputerState::Sleeping { uptime, sleep_time } => {
+            if sleep_time + time > 500 {
+                ComputerState::Off
+            } else {
+                ComputerState::Sleeping {
+                    uptime: uptime + time,
+                    sleep_time: sleep_time + time,
+                }
+            }
+        }
+    }
+}
+
+// When `MoveMouse` happens:
+// - if the PC is sleeping, the PC switches to `Running`.
+// - if the PC is running, it resets its `idle_time` to zero.
+fn move_mouse(computer: ComputerState) -> ComputerState {
+    match computer {
+        ComputerState::Sleeping {
+            uptime,
+            sleep_time: _,
+        } => ComputerState::Running {
+            uptime,
+            idle_time: 0,
+        },
+        ComputerState::Running {
+            uptime,
+            idle_time: _,
+        } => ComputerState::Running {
+            uptime,
+            idle_time: 0,
+        },
+        ComputerState::Off => computer,
+    }
+}
 
 /// Below you can find a set of unit tests.
 #[cfg(test)]
