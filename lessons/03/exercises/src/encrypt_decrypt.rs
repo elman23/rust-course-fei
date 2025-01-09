@@ -21,6 +21,63 @@
 //!
 //! Use ownership and move semantics to guarantee the rules described above.
 
+use std::collections::VecDeque;
+
+pub struct Data {
+    bytes: VecDeque<u8>,
+}
+
+pub struct EncryptedData {
+    key: u8,
+    bytes: VecDeque<u8>,
+}
+
+impl Data {
+    pub fn new(bytes: Vec<u8>) -> Self {
+        let mut vec_deque = VecDeque::new();
+        for b in bytes {
+            vec_deque.push_back(b);
+        }
+        Self { bytes: vec_deque }
+    }
+
+    pub fn read(&mut self) -> Option<u8> {
+        self.bytes.pop_front()
+    }
+
+    pub fn encrypt(&mut self, key: u8) -> EncryptedData {
+        let mut encrypted_bytes: VecDeque<u8> = VecDeque::new();
+        for b in &self.bytes {
+            encrypted_bytes.push_back(b ^ key);
+        }
+        EncryptedData {
+            key,
+            bytes: encrypted_bytes,
+        }
+    }
+}
+
+impl EncryptedData {
+    pub fn read(&mut self) -> Option<u8> {
+        self.bytes.pop_front()
+    }
+
+    pub fn decrypt(&self, key: u8) -> Result<Data, Data> {
+        let mut bytes: VecDeque<u8> = VecDeque::new();
+        for b in &self.bytes {
+            if key != self.key {
+                bytes.push_back(*b);
+            } else {
+                bytes.push_back(*b ^ key);
+            }
+        }
+        if key != self.key {
+            return Err(Data { bytes });
+        }
+        Ok(Data { bytes })
+    }
+}
+
 // The doctests below should fail to compile.
 // We need to use doctests, otherwise we could not check that the code does not compile.
 // To debug the tests, try to remove the `compile_fail` attribute and run `cargo test` to see what
