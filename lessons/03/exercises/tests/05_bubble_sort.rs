@@ -3,6 +3,20 @@
 // TODO: Write a simple bubble sort implementation that receives a unique (mutable) reference
 // to a slice of numbers and sorts them in-place.
 
+fn bubble_sort(items: &mut [i64]) {
+    let mut n = items.len();
+    let mut swapped = false;
+    while !swapped {
+        for i in 1..n {
+            if items[i - 1] > items[i] {
+                items.swap(i - 1, i);
+                swapped = true;
+            }
+        }
+        n -= 1;
+    }
+}
+
 /// Below you can find a set of unit tests.
 #[cfg(test)]
 mod tests {

@@ -7,6 +7,29 @@
 //! The time complexity of this function has to be O(n).
 //!
 //! Bonus: Can you build a complete merge sort on top of this function? :)
+fn merge_slices(s1: &[u32], s2: &[u32]) -> Vec<u32> {
+    let mut merged = Vec::new();
+    let mut i = 0;
+    let mut j = 0;
+    while i <= s1.len() && j <= s2.len() {
+        if i == s1.len() {
+            merged.append(&mut Vec::from(&s2[j..]));
+            break;
+        }
+        if j == s2.len() {
+            merged.append(&mut Vec::from(&s1[i..]));
+            break;
+        }
+        if s1[i] > s2[j] {
+            merged.push(s2[j]);
+            j += 1;
+        } else {
+            merged.push(s1[i]);
+            i += 1;
+        }
+    }
+    merged
+}
 
 /// Below you can find a set of unit tests.
 #[cfg(test)]

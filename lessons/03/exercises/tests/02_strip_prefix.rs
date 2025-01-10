@@ -6,6 +6,14 @@
 // See tests for examples. Take a look at the `strip_prefix_lifetime_check` test!
 //
 // Hint: you can use `string.chars()` for iterating the Unicode characters of a string.
+fn strip_prefix<'a>(needle: &'a str, prefix: &'a str) -> &'a str {
+    for (i, c) in needle.char_indices() {
+        if !prefix.contains(c) {
+            return &needle[i..];
+        }
+    }
+    ""
+}
 
 /// Below you can find a set of unit tests.
 #[cfg(test)]

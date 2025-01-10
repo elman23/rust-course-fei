@@ -3,6 +3,13 @@
 // TODO: Implement a function called `longest`, which will return the longer of the two
 // input strings. If they are the same length, return the first string.
 
+fn longest<'a>(s1: &'a str, s2: &'a str) -> &'a str {
+    if s2.len() > s1.len() {
+        return s2;
+    }
+    s1
+}
+
 /// Below you can find a set of unit tests.
 #[cfg(test)]
 mod tests {
