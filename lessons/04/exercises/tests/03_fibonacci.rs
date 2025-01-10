@@ -4,6 +4,30 @@
 //! Fibonacci numbers (starting from 0).
 //! `Fibonacci` should implement the `Default` trait.
 
+struct Fibonacci {
+    current: u64,
+    next: u64,
+}
+
+impl Default for Fibonacci {
+    fn default() -> Self {
+        Self {
+            current: 0,
+            next: 1,
+        }
+    }
+}
+
+impl Iterator for Fibonacci {
+    type Item = u64;
+    fn next(&mut self) -> Option<u64> {
+        let current = self.current;
+        self.current = self.next;
+        self.next += current;
+        Some(current)
+    }
+}
+
 /// Below you can find a set of unit tests.
 #[cfg(test)]
 mod tests {
