@@ -24,6 +24,70 @@
 // The format of the ticket is `<movie-name>;<day>;<visitor-name>`. The second semicolon is optional
 // when the visitor name is missing. There must not be any trailing data in the input string.
 
+enum Day {
+    Monday,
+    Tuesday,
+    Wednesday,
+    Thursday,
+    Friday,
+    Saturday,
+    Sunday,
+}
+
+impl Day {
+    fn from(s: &str) -> Option<Self> {
+        let lowercase_s: &str = &s.to_ascii_lowercase();
+        let day = match lowercase_s {
+            "monday" => Some(Day::Monday),
+            "tuesday" => Some(Day::Tuesday),
+            "wednesday" => Some(Day::Wednesday),
+            "thursday" => Some(Day::Thursday),
+            "friday" => Some(Day::Friday),
+            "saturday" => Some(Day::Saturday),
+            "sunday" => Some(Day::Sunday),
+            _ => None,
+        };
+        day
+    }
+}
+
+struct Ticket<'a> {
+    movie: &'a str,
+    day: Day,
+    visitor: Option<&'a str>,
+}
+
+fn parse_ticket(s: &str) -> Option<Ticket> {
+    let splitted: Vec<&str> = s.split(";").collect();
+    if splitted.len() < 2 || splitted.len() > 3 {
+        return None;
+    }
+    let movie = splitted[0];
+    if !is_lowercase_english(movie) {
+        return None;
+    }
+    let day = Day::from(splitted[1]);
+    let day: Day = day?;
+    let mut visitor: Option<&str> = None;
+    if splitted.len() > 2 && !splitted[2].is_empty() {
+        let some_visitor = splitted[2];
+        if !is_lowercase_english(some_visitor) {
+            return None;
+        }
+        visitor = Some(some_visitor);
+    }
+    Some(Ticket {
+        movie,
+        day,
+        visitor,
+    })
+}
+
+fn is_lowercase_english(s: &str) -> bool {
+    s.chars()
+        .all(|c| matches!(c, 'a'..='z') || matches!(c, 'A'..='Z') || c == ' ')
+}
+
 /// Below you can find a set of unit tests.
 #[cfg(test)]
 mod tests {
