@@ -20,6 +20,80 @@
 //! Obviously, the range should be sparse; store only the start and end values in memory, not all
 //! numbers in the range :) Otherwise tests will explode.
 
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+struct Range1D {
+    start: u64,
+    end: u64,
+}
+
+impl Range1D {
+    fn new(start: u64, end: u64) -> Option<Self> {
+        if end < start {
+            panic!("Start must not be larger than end");
+        }
+        Some(Self { start, end })
+    }
+
+    fn len(&self) -> usize {
+        (self.end - self.start + 1) as usize
+    }
+
+    fn contains(&self, n: u64) -> bool {
+        n >= self.start && n <= self.end
+    }
+
+    fn start(&self) -> u64 {
+        self.start
+    }
+
+    fn end(&self) -> u64 {
+        self.end
+    }
+
+    fn intersect(&self, other: Range1D) -> Option<Range1D> {
+        if self.start <= other.start && self.end >= other.start {
+            if self.end <= other.end {
+                return Range1D::new(other.start, self.end);
+            } else {
+                return Range1D::new(other.start, other.end);
+            }
+        }
+        if self.start >= other.start && self.start <= other.end {
+            if self.end <= other.end {
+                return Range1D::new(self.start, self.end);
+            } else {
+                return Range1D::new(self.start, other.end);
+            }
+        }
+        None
+    }
+
+    pub fn iter(&self) -> Range1DIterator {
+        Range1DIterator {
+            curr: self.start,
+            end: self.end,
+        }
+    }
+}
+
+struct Range1DIterator {
+    curr: u64,
+    end: u64,
+}
+
+impl Iterator for Range1DIterator {
+    type Item = u64;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.curr <= self.end {
+            self.curr += 1;
+            Some(self.curr - 1)
+        } else {
+            None
+        }
+    }
+}
+
 /// Below you can find a set of unit tests.
 #[cfg(test)]
 mod tests {

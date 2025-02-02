@@ -10,6 +10,10 @@
 //! The iterator has to be **lazy**! It should not copy the whole input array
 //! (in other words, it should have space complexity O(1)).
 
+fn adjacent_diff<'a>(s: &'a [i32]) -> impl Iterator<Item = i32> + 'a {
+    s.windows(2).map(|w| w[1] - w[0])
+}
+
 /// Below you can find a set of unit tests.
 #[cfg(test)]
 mod tests {

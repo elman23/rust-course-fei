@@ -23,7 +23,7 @@
 //! where there are exactly 4 pieces of each card). Therefore, e.g. 'AAAAA' is also a valid hand.
 //!
 use std::cmp::Ordering;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::fmt::{Debug, Formatter, Write};
 
 // Card values are sorted in ascending order (Numeric < Jack < Queen < King < Ace).
@@ -130,14 +130,65 @@ impl PartialOrd for Hand {
 impl Ord for Hand {
     // TODO: implement this method
     fn cmp(&self, other: &Self) -> Ordering {
-        todo!()
+        //todo!()
+        if self.value() > other.value() {
+            return Ordering::Greater;
+        }
+        if self.value() < other.value() {
+            return Ordering::Less;
+        }
+        let pairs: Vec<(&Card, &Card)> = self.cards.iter().zip(other.cards.iter()).collect();
+        for pair in pairs {
+            let (x, y) = pair;
+            if x > y {
+                return Ordering::Greater;
+            }
+            if x < y {
+                return Ordering::Less;
+            }
+        }
+        Ordering::Equal
     }
 }
 
 impl Hand {
     // TODO: implement this method
     fn value(&self) -> HandValue {
-        todo!()
+        //todo!()
+        let mut frequencies = HashMap::new();
+        for n in self.cards {
+            *frequencies.entry(n).or_insert(0) += 1;
+        }
+        let max = frequencies
+            .into_iter()
+            .max_by_key(|&(_, counter)| counter)
+            .map(|(_, value)| value);
+        match max {
+            Some(v) => match v {
+                5 => HandValue::FiveOfAKind,
+                4 => HandValue::FourOfAKind,
+                3 => {
+                    let unique_cards = self.cards.iter().cloned().collect::<HashSet<_>>();
+                    if unique_cards.len() == 2 {
+                        HandValue::FullHouse
+                    } else {
+                        HandValue::ThreeOfAKind
+                    }
+                }
+                2 => {
+                    let unique_cards = self.cards.iter().cloned().collect::<HashSet<_>>();
+                    if unique_cards.len() == 3 {
+                        HandValue::TwoPairs
+                    } else {
+                        HandValue::OnePair
+                    }
+                }
+                _ => HandValue::HighCard,
+            },
+            None => {
+                panic!("Maximum not found!");
+            }
+        }
     }
 }
 

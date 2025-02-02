@@ -10,6 +10,50 @@
 //!
 //! Think about the various trait bounds that you will require for `CumulativeSum` to work.
 //! What operations have to be supported by the two generic types?
+use std::ops::Add;
+
+struct CumulativeSum<T, U>
+where
+    T: Add<Output = T> + Clone,
+    U: Iterator<Item = T>,
+{
+    iterator: U,
+    sum: Option<T>,
+}
+
+impl<T, U> CumulativeSum<T, U>
+where
+    T: Add<Output = T> + Clone,
+    U: Iterator<Item = T>,
+{
+    fn new(iterator: U) -> Self {
+        CumulativeSum {
+            iterator,
+            sum: None,
+        }
+    }
+}
+
+impl<T, U> Iterator for CumulativeSum<T, U>
+where
+    T: Add<Output = T> + Clone,
+    U: Iterator<Item = T>,
+{
+    type Item = T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.iterator.next() {
+            Some(t) => {
+                self.sum = Some(match &self.sum {
+                    Some(sum) => sum.clone() + t,
+                    None => t,
+                });
+                self.sum.clone()
+            }
+            None => None,
+        }
+    }
+}
 
 /// Below you can find a set of unit tests.
 #[cfg(test)]

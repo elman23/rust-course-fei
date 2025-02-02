@@ -10,6 +10,30 @@
 //! The iterator has to be **lazy**! It should not copy the whole input array
 //! (in other words, it should have space complexity O(1)).
 
+struct SplitItems<'a> {
+    parts: std::vec::IntoIter<&'a str>,
+}
+
+impl<'a> SplitItems<'a> {
+    fn new(s: &'a str, d: char) -> Self {
+        let parts = s.trim().split(d);
+        SplitItems {
+            parts: parts
+                .filter(|p| !p.is_empty())
+                .collect::<Vec<&str>>()
+                .into_iter(),
+        }
+    }
+}
+
+impl<'a> Iterator for SplitItems<'a> {
+    type Item = &'a str;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.parts.next()
+    }
+}
+
 /// Below you can find a set of unit tests.
 #[cfg(test)]
 mod tests {

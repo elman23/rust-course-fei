@@ -25,6 +25,13 @@ impl Iterator for Fibonacci {
     }
 }
 
+fn split(s: &str, d: char) {
+    let parts = s.split(d);
+    for part in parts {
+        println!("{}", part);
+    }
+}
+
 fn main() {
     println!("Hello Rust!");
 
@@ -37,4 +44,6 @@ fn main() {
     println!("{}", f.next().unwrap());
     println!("{}", f.next().unwrap());
     println!("{}", f.next().unwrap());
+
+    split("abc def ghij", ' ');
 }
