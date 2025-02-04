@@ -40,6 +40,82 @@
 //! You don't need to use `unsafe`, pointers, or anything special, just use the simplest data
 //! representation that you can think of. The implementation should fit within 120 lines of code.
 
+#[derive(Debug)]
+struct RingBuffer<T>
+where
+    T: Clone,
+{
+    elements: Vec<Option<T>>,
+    start: usize,
+    end: usize,
+}
+
+impl<T> RingBuffer<T>
+where
+    T: Clone,
+{
+    fn new(size: usize) -> Self {
+        RingBuffer {
+            elements: vec![None; size],
+            start: 0,
+            end: 0,
+        }
+    }
+
+    fn enqueue(&mut self, value: T) -> Option<T> {
+        if self.elements.is_empty() {
+            return None;
+        }
+        let previous_value = self.elements[self.end].take();
+        if previous_value.is_some() {
+            self.start = self.end + 1;
+            if self.start == self.elements.capacity() {
+                self.start = 0;
+            }
+        }
+        self.elements[self.end] = Some(value);
+        if self.end < self.elements.capacity() - 1 {
+            self.end += 1;
+        } else {
+            self.end = 0;
+        }
+        previous_value
+    }
+
+    fn dequeue(&mut self) -> Option<T> {
+        if self.elements.len() == 0 {
+            return None;
+        }
+        let next_value = self.elements[self.start].take();
+        self.elements[self.start] = None;
+        self.start += 1;
+        next_value
+    }
+
+    fn peek(&self) -> Option<&T> {
+        if self.elements.len() == 0 {
+            return None;
+        }
+        self.elements[self.start].as_ref()
+    }
+
+    fn len(&self) -> usize {
+        self.elements.iter().filter(|x| !x.is_none()).count()
+    }
+
+    fn iter(&self) -> impl Iterator<Item = &T> {
+        //todo!()
+        let not_null: Vec<&Option<T>> = self.elements.iter().filter(|x| !x.is_none()).collect();
+        let size = not_null.len();
+        self.elements
+            .iter()
+            .cycle()
+            .skip(self.start)
+            .take(size)
+            .filter_map(|option| option.as_ref())
+    }
+}
+
 /// TODO(bonus): write a simple "DSL" (domain-specific language) that can
 /// be used to test the ringbuffer in a more visual way.
 /// For example, you could create a function that "renders" the ringbuffer
@@ -260,6 +336,7 @@ mod tests {
         for i in 1..=6 {
             rb.enqueue(i);
         }
+        let result = rb.iter().collect::<Vec<_>>();
         assert_eq!(rb.iter().collect::<Vec<_>>(), vec![&3, &4, &5, &6]);
     }
 }
