@@ -83,7 +83,7 @@ where
     }
 
     fn dequeue(&mut self) -> Option<T> {
-        if self.elements.len() == 0 {
+        if self.elements.is_empty() {
             return None;
         }
         let next_value = self.elements[self.start].take();
@@ -93,7 +93,7 @@ where
     }
 
     fn peek(&self) -> Option<&T> {
-        if self.elements.len() == 0 {
+        if self.elements.is_empty() {
             return None;
         }
         self.elements[self.start].as_ref()
@@ -336,7 +336,6 @@ mod tests {
         for i in 1..=6 {
             rb.enqueue(i);
         }
-        let result = rb.iter().collect::<Vec<_>>();
         assert_eq!(rb.iter().collect::<Vec<_>>(), vec![&3, &4, &5, &6]);
     }
 }
